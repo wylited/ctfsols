@@ -1,0 +1,149 @@
+[4mREAD[24m(1)                                                               fish-shell                                                               [4mREAD[24m(1)
+
+[1mNAME[0m
+       read - read line of input into variables
+
+[1mSYNOPSIS[0m
+       [1mread [22m[[4mOPTIONS[24m] [[4mVARIABLE[24m ...]
+
+[1mDESCRIPTION[0m
+       [1mread  [22mreads from standard input and either writes the result back to standard output (for use in command substitution), or stores the result in
+       one or more shell variables. By default, [1mread [22mreads a single line and splits it into variables on spaces or tabs. Alternatively, a null charac‐
+       ter or a maximum number of characters can be used to terminate the input, and other delimiters can be given. Unlike other shells, there  is  no
+       default variable (such as [1mREPLY[22m) for storing the result - instead, it is printed on standard output.
+
+       The following options are available:
+
+       [1m-c [4m[22mCMD[24m or [1m--command [4m[22mCMD[0m
+              Sets the initial string in the interactive mode command buffer to [4mCMD[24m.
+
+       [1m-d [22mor [1m--delimiter [4m[22mDELIMITER[0m
+              Splits on [4mDELIMITER[24m. [4mDELIMITER[24m will be used as an entire string to split on, not a set of characters.
+
+       [1m-g [22mor [1m--global[0m
+              Makes the variables global.
+
+       [1m-s [22mor [1m--silent[0m
+              Masks  characters written to the terminal, replacing them with asterisks. This is useful for reading things like passwords or other sen‐
+              sitive information.
+
+       [1m-f [22mor [1m--function[0m
+              Scopes the variable to the currently executing function. It is erased when the function ends.
+
+       [1m-l [22mor [1m--local[0m
+              Scopes the variable to the currently executing block. It is erased when the block ends. Outside of a block, this is the same as  [1m--func‐[0m
+              [1mtion[22m.
+
+       [1m-n [22mor [1m--nchars [4m[22mNCHARS[0m
+              Makes [1mread [22mreturn after reading [4mNCHARS[24m characters or the end of the line, whichever comes first.
+
+       [1m-p [22mor [1m--prompt [4m[22mPROMPT_CMD[0m
+              Uses  the  output of the shell command [4mPROMPT_CMD[24m as the prompt for the interactive mode. The default prompt command is [1mset_color green;[0m
+              [1mecho read; set_color normal; echo "> "[0m
+
+       [1m-P [22mor [1m--prompt-str [4m[22mPROMPT_STR[0m
+              Uses the [4mPROMPT_STR[24m as the prompt for the interactive mode. It is equivalent to [1mecho $PROMPT_STR [22mand is provided  solely  to  avoid  the
+              need  to  frame  the prompt as a command. All special characters in the string are automatically escaped before being passed to the [4mecho[0m
+              command.
+
+       [1m-R [22mor [1m--right-prompt [4m[22mRIGHT_PROMPT_CMD[0m
+              Uses the output of the shell command [4mRIGHT_PROMPT_CMD[24m as the right prompt for the interactive mode. There is  no  default  right  prompt
+              command.
+
+       [1m-S [22mor [1m--shell[0m
+              Enables  syntax  highlighting,  tab  completions and command termination suitable for entering shellscript code in the interactive mode.
+              NOTE: Prior to fish 3.0, the short opt for [1m--shell [22mwas [1m-s[22m, but it has been changed for  compatibility  with  bash's  [1m-s  [22mshort  opt  for
+              [1m--silent[22m.
+
+       [1m-t [22m-or [1m--tokenize[0m
+              Causes  read to split the input into variables by the shell's tokenization rules. This means it will honor quotes and escaping. This op‐
+              tion is of course incompatible with other options to control splitting like [1m--delimiter [22mand does not honor [4mIFS[24m (like fish's  tokenizer).
+              It saves the tokens in the manner they'd be passed to commands on the commandline, so e.g. [1ma\ b [22mis stored as [1ma b[22m. Note that currently it
+              leaves command substitutions intact along with the parentheses.
+
+       [1m-u [22mor [1m--unexport[0m
+              Prevents the variables from being exported to child processes (default behaviour).
+
+       [1m-U [22mor [1m--universal[0m
+              Causes the specified shell variable to be made universal.
+
+       [1m-x [22mor [1m--export[0m
+              Exports the variables to child processes.
+
+       [1m-a [22mor [1m--list[0m
+              Stores the result as a list in a single variable. This option is also available as [1m--array [22mfor backwards compatibility.
+
+       [1m-z [22mor [1m--null[0m
+              Marks the end of the line with the NUL character, instead of newline. This also disables interactive mode.
+
+       [1m-L [22mor [1m--line[0m
+              Reads  each  line into successive variables, and stops after each variable has been filled. This cannot be combined with the [1m--delimiter[0m
+              option.
+
+       Without the [1m--line [22moption, [1mread [22mreads a single line of input from standard input, breaks it into tokens, and then assigns  one  token  to  each
+       variable specified in [4mVARIABLES[24m. If there are more tokens than variables, the complete remainder is assigned to the last variable.
+
+       If  no  option  to  determine how to split like [1m--delimiter[22m, [1m--line [22mor [1m--tokenize [22mis given, the variable [1mIFS [22mis used as a list of characters to
+       split on. Relying on the use of [1mIFS [22mis deprecated and this behaviour will be removed in future versions. The  default  value  of  [1mIFS  [22mcontains
+       space,  tab  and newline characters. As a special case, if [1mIFS [22mis set to the empty string, each character of the input is considered a separate
+       token.
+
+       With the [1m--line [22moption, [1mread [22mreads a line of input from standard input into each provided  variable,  stopping  when  each  variable  has  been
+       filled. The line is not tokenized.
+
+       If  no  variable names are provided, [1mread [22menters a special case that simply provides redirection from standard input to standard output, useful
+       for command substitution. For instance, the fish shell command below can be used to read data that should be provided via a command line  argu‐
+       ment  from  the  console  instead of hardcoding it in the command itself, allowing the command to both be reused as-is in various contexts with
+       different input values and preventing possibly sensitive text from being included in the shell history:
+
+          mysql -uuser -p(read)
+
+       When running in this mode, [1mread [22mdoes not split the input in any way and text is redirected to standard output without any further processing or
+       manipulation.
+
+       If [1m-a [22mor [1m--array [22mis provided, only one variable name is allowed and the tokens are stored as a list in this variable.
+
+       See the documentation for [1mset [22mfor more details on the scoping rules for variables.
+
+       When [1mread [22mreaches the end-of-file (EOF) instead of the terminator, the exit status is set to 1.  Otherwise, it is set to 0.
+
+       In order to protect the shell from consuming too many system resources, [1mread [22mwill only consume a maximum of 100 MiB (104857600 bytes);  if  the
+       terminator is not reached before this limit then [4mVARIABLE[24m is set to empty and the exit status is set to 122. This limit can be altered with the
+       [4mfish_read_limit[24m variable. If set to 0 (zero), the limit is removed.
+
+[1mEXAMPLE[0m
+       [1mread [22mhas a few separate uses.
+
+       The following code stores the value 'hello' in the shell variable [1mfoo[22m.
+
+          echo hello|read foo
+
+       The [4mwhile[24m command is a neat way to handle command output line-by-line:
+
+          printf '%s\n' line1 line2 line3 line4 | while read -l foo
+                            echo "This is another line: $foo"
+                        end
+
+       Delimiters given via "-d" are taken as one string:
+
+          echo a==b==c | read -d == -l a b c
+          echo $a # a
+          echo $b # b
+          echo $c # c
+
+       [1m--tokenize [22mhonors quotes and escaping like the shell's argument passing:
+
+          echo 'a\ b' | read -t first second
+          echo $first # outputs "a b", $second is empty
+
+          echo 'a"foo bar"b (command echo wurst)*" "{a,b}' | read -lt -l a b c
+          echo $a # outputs 'afoo barb' (without the quotes)
+          echo $b # outputs '(command echo wurst)* {a,b}' (without the quotes)
+          echo $c # nothing
+
+       For an example on interactive use, see [4mQuerying[24m [4mfor[24m [4muser[24m [4minput[24m.
+
+[1mCOPYRIGHT[0m
+       2024, fish-shell developers
+
+3.7                                                                  Apr 13, 2024                                                              [4mREAD[24m(1)
